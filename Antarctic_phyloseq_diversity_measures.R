@@ -33,11 +33,12 @@ format_tax_mat = function(tax_mat, name) {
 }
   
 #### Source custom functions ####
-setwd("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline/r_pipeline_statistics")
+own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
+setwd(paste(own_cloud_dir, "/programms_daniel/Pipeline/r_pipeline_statistics", sep = ""))
 source("pipeline_statistics_custom_phyloseq_functions.R")
 
 #### Working Directory ####
-setwd("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/BioDivIndices")
+setwd(paste(own_cloud_dir, "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_tables_for_grafics/alpha_diversity_indices", sep = ""))
 list.files()
 
 #### Color ####
@@ -46,54 +47,31 @@ col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_co
 
 #### Selection ####
 # Names from the taxgroup tables
-taxgroups = list.files(pattern = "final_allOTUs_for_diversity")
-# ranks = c()
-# # taxgroups: chloro 1, taboux 2, Ulvo 3, Xantho 4
-# # Combine all the Taxgroups
-# for (i in 1:4) {
-#   name = taxgroups[i]
-#   final_table = read.csv(name, sep = "\t", header = TRUE)
-#   name = strsplit(name, split = ".csv")[[1]][1]
-#   ranks[i] = strsplit(name, split = "_")[[1]][5]
-#   if (i == 1) {
-#     otu_mat = as.matrix(final_table[,c(1,6:12)])
-#     tax_mat = as.matrix(final_table[,c(1,3)])
-#     otu_mat = format_otu_mat(otu_mat)
-#     tax_mat = format_tax_mat(tax_mat)
-#   } else {
-#     sec_otu_mat = as.matrix(final_table[,c(1,6:12)])
-#     sec_tax_mat = as.matrix(final_table[,c(1,3)])
-#     sec_otu_mat = format_otu_mat(sec_otu_mat)
-#     sec_tax_mat = format_tax_mat(sec_tax_mat)
-#   }
-#   if (i != 1) {
-#     otu_mat = rbind(otu_mat, sec_otu_mat)
-#     tax_mat = rbind(tax_mat, sec_tax_mat)
-#   }
-# }
+taxgroups = list.files(pattern = "final_allOTUs")
 
 # Manual selection
-t = 4
+# t = 1
 
 # Automatic
 for (t in 1:4) {
   name = taxgroups[t]
   final_table = read.csv(name, sep = "\t", header = TRUE)
-  name = strsplit(strsplit(name, split = ".csv")[[1]][1], split = "_")[[1]][5]
-  otu_mat = as.matrix(final_table[,c(1,6:13)])
+  name = strsplit(strsplit(name, split = ".csv")[[1]][1], split = "_")[[1]][3]
+  otu_mat = as.matrix(final_table[,c(1,7:12)])
   tax_mat = as.matrix(final_table[,c(1,3)])
   otu_mat = format_otu_mat(otu_mat)
   tax_mat = format_tax_mat(tax_mat, name)
+  otu_mat[is.na(otu_mat)] = 0
   
-  # special sum 6 & 614, 9 & 914
-  for (i in 1:nrow(otu_mat)) {
-    otu_mat[i,2] = sum(otu_mat[i,2], otu_mat[i,3])
-    otu_mat[i,4] = sum(otu_mat[i,4], otu_mat[i,5])
-  }
-  otu_mat = otu_mat[,-c(3,5)]
-  
+  # # special sum 6 & 614, 9 & 914
+  # for (i in 1:nrow(otu_mat)) {
+  #   otu_mat[i,2] = sum(otu_mat[i,2], otu_mat[i,3])
+  #   otu_mat[i,4] = sum(otu_mat[i,4], otu_mat[i,5])
+  # }
+  # otu_mat = otu_mat[,-c(3,5)]
+  # 
   #### Add the only_SchF OTUs ####
-  only_SchF_table = read.csv("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/only_SchF/OtuMatrix_onlySchF.csv", sep = "\t", header = TRUE) 
+  only_SchF_table = read.csv("/home/pipeline/bigdata/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/only_SchF/OtuMatrix_onlySchF.csv", sep = "\t", header = TRUE)
   only_SchF_table = only_SchF_table[,-c(2:15)]
   only_SchF_table[,2] = only_SchF_table[,2] + only_SchF_table[,3]
   only_SchF_table = only_SchF_table[,-c(3,4)]
@@ -114,11 +92,11 @@ for (t in 1:4) {
   }
   merge_only_SchF[,7] = merge_only_SchF[,6] + merge_only_SchF[,7]
   otu_mat = merge_only_SchF
-  
+
   # merge the tax_mat
   only_SchF_table_tax = only_SchF_table[,c(2,3)]
   rownames(only_SchF_table_tax) = only_SchF_table[,1]
-  only_SchF_table_tax[,1] = only_SchF_table_tax[,2]  
+  only_SchF_table_tax[,1] = only_SchF_table_tax[,2]
   colnames(only_SchF_table_tax) = c("taxgroup", "taxa")
   only_SchF_table_tax = as.matrix(only_SchF_table_tax)
   tax_mat = rbind(tax_mat, only_SchF_table_tax)

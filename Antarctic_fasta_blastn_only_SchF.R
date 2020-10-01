@@ -1,6 +1,6 @@
 ################################################################################
 #
-# fasta_blastn.R
+# Antarctic_fasta_blastn_only_SchF.R
 #
 # Do a blastn-query with the nt-db for all the fasta-files in the given directory
 # and save the blastoutput to a blastoutput-file
