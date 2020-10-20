@@ -11,18 +11,18 @@
 
 library(readr)
 
-#### Main ####
 #### Working Directory ####
-setwd("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/BioDivIndices")
+own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
+setwd(paste(own_cloud_dir, "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/BioDivIndices", sep = ""))
 list.files()
 
 #### Selection ####
 # Names from the taxgroup tables
 taxgroups = list.files(pattern = "final_allOTUs_processed")
-# taxgroups: chloro 1, taboux 2, Ulvo 3, Xantho 4
 
 # Load the final table
-final_table = read.csv("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/ITS_OLD_LARS/fNMDS_Antarktis_1_data.csv", sep = "\t", header = TRUE)
+final_table = read.csv(paste(own_cloud_dir, "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/ITS_OLD_LARS/fNMDS_Antarktis_1_data.csv", sep = ""), 
+                       sep = "\t", header = TRUE)
 final_table[is.na(final_table)] = 0
 
 # Load the taxgroup tables
@@ -35,7 +35,7 @@ for (t in 1:length(taxgroups)) {
   for (i in 1:length(taxgroup_table[,1])) {
     # fill with the information from the final_table
     final_table_ind = which(final_table[,1] == taxgroup_table[i,1])
-    grep_pattern = c("31", "6_",  "614", "9_",  "914", "X14", "X15", "SchF")
+    grep_pattern = c("31", "6_", "614", "9_", "914", "X14", "X15", "SchF")
     sum_vector = c()
     for (y in 1:length(grep_pattern)) {
       sum_vector[y] = sum(final_table[final_table_ind,grep(grep_pattern[y], colnames(final_table))])

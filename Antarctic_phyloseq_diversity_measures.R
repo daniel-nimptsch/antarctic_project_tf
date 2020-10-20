@@ -62,14 +62,7 @@ for (t in 1:4) {
   otu_mat = format_otu_mat(otu_mat)
   tax_mat = format_tax_mat(tax_mat, name)
   otu_mat[is.na(otu_mat)] = 0
-  
-  # # special sum 6 & 614, 9 & 914
-  # for (i in 1:nrow(otu_mat)) {
-  #   otu_mat[i,2] = sum(otu_mat[i,2], otu_mat[i,3])
-  #   otu_mat[i,4] = sum(otu_mat[i,4], otu_mat[i,5])
-  # }
-  # otu_mat = otu_mat[,-c(3,5)]
-  # 
+
   #### Add the only_SchF OTUs ####
   only_SchF_table = read.csv("/home/pipeline/bigdata/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/only_SchF/OtuMatrix_onlySchF.csv", sep = "\t", header = TRUE)
   only_SchF_table = only_SchF_table[,-c(2:15)]
@@ -82,7 +75,7 @@ for (t in 1:4) {
   colnames(merge_only_SchF) = append(colnames(otu_mat), "only_SchF")
   row.names(merge_only_SchF) = append(rownames(otu_mat), only_SchF_table[,1])
   for (i in 1:nrow(merge_only_SchF)) {
-    if(length(which(row.names(merge_only_SchF)[i] == row.names(otu_mat))) != 0) {
+    if (length(which(row.names(merge_only_SchF)[i] == row.names(otu_mat))) != 0) {
       ind = which(row.names(merge_only_SchF)[i] == row.names(otu_mat))
       merge_only_SchF[i,c(1:6)] = otu_mat[ind,]
     } else if (length(which(row.names(merge_only_SchF)[i] == only_SchF_table[,1])) != 0) {
@@ -134,7 +127,7 @@ for (i in 1:3) {
   var_value[,2] = colnames(value)[i]
   colnames(var_value) = c("Measure", "Index")
   var_final_div_table = cbind(var_final_div_table, var_value)
-  if(i == 1) {
+  if (i == 1) {
     ultra_final_div_table = var_final_div_table
   } else {
     ultra_final_div_table = rbind(ultra_final_div_table, var_final_div_table)
@@ -145,7 +138,7 @@ ultra_final_div_table = type_convert(ultra_final_div_table)
 #### Color ####
 # Color Palette
 col_vector = brewer.pal(n = 12, name = 'Paired')
-display.brewer.pal(n=12, name='Paired')
+display.brewer.pal(n = 12, name = 'Paired')
 col_vector[3] = col_vector[4]
 col_vector[4] = col_vector[8]
 
@@ -155,20 +148,20 @@ sample_order = c("AM31", "AM09", "AM06", "AS14", "AS15", "SchF", "only_SchF")
 #### Save ####
 #### Diversity Plots ####
 pdf(file =  paste(name, "_diversity_plots_merged.pdf", sep = ""), width = 8.2, height = 7.3)
-p <- plot_richness(physeq.pruned, x = "samples", color = "samples", title = title, measures = alpha_meas)
-p$data$samples <- factor(p$data$samples, levels=sample_order)
-p + geom_point(size=3)
+  p <- plot_richness(physeq.pruned, x = "samples", color = "samples", title = title, measures = alpha_meas)
+  p$data$samples <- factor(p$data$samples, levels = sample_order)
+  p + geom_point(size = 3)
 dev.off()
 
 ultra_final_div_table$Index <- factor(ultra_final_div_table$Index, levels = c("Observed", "Shannon", "InvSimpson"))
 pdf(file =  "all_taxgroups_diversity_plots_merged.pdf", width = 10.2, height = 7.3)
-p = ggplot(ultra_final_div_table, aes(Sample, Measure))
-p = p + scale_x_discrete(labels = c("AM31", "AM09", "AM06", "AS14", "AS15", "shared_SchF", "SchF")) 
-p = p + ggtitle("Alpha Diversity Plots for the different taxgroups")
-p = p + theme(axis.text.x=element_text(angle=30, hjust = 1))
-p$data$Sample = factor(p$data$Sample, levels=sample_order)
-p = p + facet_wrap(~Index, scales = "free")
-p = p + geom_boxplot(alpha = 0, coef = 1.5)
-p = p + geom_point(aes(y = Measure, colour = Taxa), size = 3) + scale_color_manual(values = col_vector)
-p
+  p = ggplot(ultra_final_div_table, aes(Sample, Measure))
+  p = p + scale_x_discrete(labels = c("AM31", "AM09", "AM06", "AS14", "AS15", "shared_SchF", "SchF")) 
+  p = p + ggtitle("Alpha Diversity Plots for the different taxgroups")
+  p = p + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  p$data$Sample = factor(p$data$Sample, levels = sample_order)
+  p = p + facet_wrap(~Index, scales = "free")
+  p = p + geom_boxplot(alpha = 0, coef = 1.5)
+  p = p + geom_point(aes(y = Measure, colour = Taxa), size = 3) + scale_color_manual(values = col_vector)
+  p
 dev.off()

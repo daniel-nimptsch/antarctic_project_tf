@@ -23,19 +23,20 @@ fasta_fill = function(fasta_mat, fasta_file) {
   return(fasta_mat)
 }
 
-#### Main ####
 #### Working Directory ####
-setwd("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/others_BLAST")
+own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
+setwd(paste(own_cloud_dir, 
+            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_OTUs_NGS_Ant1", 
+            sep = ""))
 list.files()
 
 # Load the final table
-final_table = read.csv("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/ITS_OLD_LARS/fNMDS_Antarktis_1_data.csv", sep = "\t", header = TRUE)
+final_table = read.csv(paste(own_cloud_dir,"/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/ITS_OLD_LARS/fNMDS_Antarktis_1_data.csv", sep = ""), 
+                       sep = "\t", header = TRUE)
 final_table[is.na(final_table)] = 0
-# final_table_bak = final_table
 
 # Names from the taxgroup tables
 taxgroups = list.files(pattern = "final_allOTUs")
-# taxgroups: chloro 1, taboux 2, Ulvo 3, Xantho 4
 
 # Load th fasta  with the sequences from all the OTUs and generate a table
 fasta_file = read.fasta(list.files(pattern = "fasta")[1], as.string = TRUE)
@@ -48,7 +49,7 @@ fasta_table = fasta_fill(fasta_table, fasta_file)
 for (t in 1:length(taxgroups)) {
   taxgroup_table = read.csv(taxgroups[t], sep = ";", header = TRUE)
   duplicates = which(duplicated(taxgroup_table[,1]))
-  if(length(duplicates) == 0) {
+  if (length(duplicates) == 0) {
     print("No duplicates were found")
   } else {
     taxgroup_table = taxgroup_table[-duplicates,]
@@ -76,42 +77,44 @@ for (t in 1:length(taxgroups)) {
     taxgroup_table[i,11] = sum_vector[6]
     taxgroup_table[i,5] = sum(sum_vector)
   }
-  write.csv(taxgroup_table, file = paste("processed/final_allOTUs_processed_", comment(taxgroup_table), ".csv", sep = ""), sep = "\t", row.names = FALSE)
+  # write.csv(taxgroup_table, file = paste("processed/final_allOTUs_processed_", comment(taxgroup_table), ".csv", sep = ""), sep = "\t", row.names = FALSE)
 }
 
 # Generate a fasta file with the missing OTUs from the Xan taxgroup
 taxgroup_table = read.csv(taxgroups[4], sep = ";", header = TRUE)
 missing_xantho_fasta = list()
 for (i in 1:length(taxgroup_table[,1])) {
-  if(taxgroup_table[i,2] == "") {
+  if (taxgroup_table[i,2] == "") {
     otu_fasta_ind = which(names(fasta_file) == taxgroup_table[i,1])
     name_otu_fasta_ind = attr(fasta_file[otu_fasta_ind], "name")
     missing_xantho_fasta[name_otu_fasta_ind] = fasta_file[otu_fasta_ind]
   }
 }
-write.fasta(missing_xantho_fasta, names(missing_xantho_fasta), "missing_otu_xantho.fasta")
+# write.fasta(missing_xantho_fasta, names(missing_xantho_fasta), "missing_otu_xantho.fasta")
 
 # Use the information from the BLAST from final_table_missing_otu_xantho.csv to complete the final_allOTUs_Xanthophyceae
 blast_table_xantho = read.csv("final_table_missing_otu_xantho.csv", sep = "\t", header = TRUE)
 final_table_xantho = read.csv("processed/final_allOTUs_processed_Xanthophyceae.csv", sep = ",", header = TRUE)
 for (i in 1:length(final_table_xantho[,1])) {
-  if(final_table_xantho[i,2] == "") {
+  if (final_table_xantho[i,2] == "") {
     blast_table_xantho_ind = which(blast_table_xantho[,1] == final_table_xantho[i,1])[1]
     final_table_xantho[i,2] = round(blast_table_xantho[blast_table_xantho_ind,3], digits = 2)
   }
 }
-write.csv(final_table_xantho, "processed/final_allOTUs_processed_Xanthophyceae.csv", sep = "\t", row.names = FALSE)
+# write.csv(final_table_xantho, "processed/final_allOTUs_processed_Xanthophyceae.csv", sep = "\t", row.names = FALSE)
 
 # change the commas in the bitscore for dots
-setwd("/home/pipeline/ownCloud/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_OTUs_NGS_Ant1/processed")
+setwd(paste(own_cloud_dir, "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_OTUs_NGS_Ant1/processed", 
+            sep = ""))
 tables = list.files(pattern = ".csv")
 for (i in 1:length(tables)) {
   taxgroup_table = read.csv(tables[i], sep = ",", header = TRUE)
   taxgroup_table[,2] = gsub(",", ".", taxgroup_table[,2])
-  write.csv(taxgroup_table, tables[i], sep = "\t", row.names = FALSE)
+  # write.csv(taxgroup_table, tables[i], sep = "\t", row.names = FALSE)
 }
 
 # Load final_table_others_blast
+setwd(paste(own_cloud_dir, "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/others_BLAST", sep = ""))
 final_table_others = read.csv("final_table_others_BLAST.csv", header = TRUE, sep = "\t")
 taxgroup_table = matrix(data = NA, nrow = nrow(fasta_table), ncol = 11)
 colnames(taxgroup_table) = c("OTU_ID", "corrected_score", "taxonomy", "seq_length", "total_reads", "AM31", "AM06", "AM09", "AS14", "AS15", "SchF")
@@ -138,4 +141,4 @@ for (i in 1:length(taxgroup_table[,1])) {
   taxgroup_table[i,11] = sum_vector[6]
   taxgroup_table[i,5] = sum(sum_vector)
 }
-write.csv(taxgroup_table, file = "final_others_OTU_table.csv", sep = "\t", row.names = FALSE)
+# write.csv(taxgroup_table, file = "final_others_OTU_table.csv", sep = "\t", row.names = FALSE)

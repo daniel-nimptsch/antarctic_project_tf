@@ -28,17 +28,17 @@ list.files()
 plot_rarefaction = function(final_otu_table, col_vector, column_nr) {
   final_otu_table = as.matrix(final_otu_table[,column_nr])
   final_otu_table = create_otu_mat_spread(final_otu_table)
-  final_otu_table = matrix(as.numeric(unlist(final_otu_table)),nrow=nrow(final_otu_table))
+  final_otu_table = matrix(as.numeric(unlist(final_otu_table)),nrow = nrow(final_otu_table))
   raremax = min(rowSums(final_otu_table))
   legend = colnames_final_tables[column_nr]
   #### Rarefaction curve ####
   filename = paste("Rarefaction_curve_taxgroups_", legend,".pdf", sep = "")
   pdf(file = filename, width = 11, height = 8)
-  par(mar=c(5.1, 5.1, 4.1, 9), xpd = FALSE)
+  par(mar = c(5.1, 5.1, 4.1, 9), xpd = FALSE)
   p = rarecurve(final_otu_table, step = 20, sample = raremax, lwd = 2.5, 
-                col = col_vector, ylab="OTUs", label=F) 
+                col = col_vector, ylab = "OTUs", label = F) 
   title("Rarefaction curve of the OTU counts from the taxgroups")
-  par(xpd=TRUE)
+  par(xpd = TRUE)
   legend("right", inset = c(-0.21,0), legend = legend, cex = 0.6, lwd = 2.5, 
          col = col_vector, title = "Taxgroups:")
   dev.off()
@@ -54,7 +54,7 @@ colnames_final_tables[1] = "OTU_ID"
 # For all the taxgroups count the total number of OTUs
 for (i in 1:length(final_tables)) {
   row_final_tables = row_final_tables + nrow(read.csv(final_tables[i], sep = "\t", header = TRUE, row.names = 1))
-  colnames_final_tables[i+1] = strsplit(strsplit(final_tables[i], split = "_")[[1]][3], split = "\\.")[[1]][1]
+  colnames_final_tables[i + 1] = strsplit(strsplit(final_tables[i], split = "_")[[1]][3], split = "\\.")[[1]][1]
 }
 final_otu_table = matrix(data = NA, nrow = row_final_tables, ncol = 5)
 colnames(final_otu_table) = colnames_final_tables
