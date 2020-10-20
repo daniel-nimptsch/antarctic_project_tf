@@ -34,13 +34,13 @@ plot_rarefaction = function(final_otu_table, col_vector, column_nr) {
   #### Rarefaction curve ####
   filename = paste("Rarefaction_curve_taxgroups_", legend,".pdf", sep = "")
   pdf(file = filename, width = 11, height = 8)
-  par(mar = c(5.1, 5.1, 4.1, 9), xpd = FALSE)
-  p = rarecurve(final_otu_table, step = 20, sample = raremax, lwd = 2.5, 
-                col = col_vector, ylab = "OTUs", label = F) 
-  title("Rarefaction curve of the OTU counts from the taxgroups")
-  par(xpd = TRUE)
-  legend("right", inset = c(-0.21,0), legend = legend, cex = 0.6, lwd = 2.5, 
-         col = col_vector, title = "Taxgroups:")
+    par(mar = c(5.1, 5.1, 4.1, 9), xpd = FALSE)
+    p = rarecurve(final_otu_table, step = 20, sample = raremax, lwd = 2.5, 
+                  col = col_vector, ylab = "OTUs", label = F) 
+    title("Rarefaction curve of the OTU counts from the taxgroups")
+    par(xpd = TRUE)
+    legend("right", inset = c(-0.21,0), legend = legend, cex = 0.6, lwd = 2.5, 
+           col = col_vector, title = "Taxgroups:")
   dev.off()
 }
 

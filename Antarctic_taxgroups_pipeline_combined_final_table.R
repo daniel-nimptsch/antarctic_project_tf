@@ -80,7 +80,7 @@ for (t in 1:length(taxgroups)) {
   # write.csv(taxgroup_table, file = paste("processed/final_allOTUs_processed_", comment(taxgroup_table), ".csv", sep = ""), sep = "\t", row.names = FALSE)
 }
 
-# Generate a fasta file with the missing OTUs from the Xan taxgroup
+# Generate a fasta file with the missing OTUs from the Xanthophyceae taxgroup
 taxgroup_table = read.csv(taxgroups[4], sep = ";", header = TRUE)
 missing_xantho_fasta = list()
 for (i in 1:length(taxgroup_table[,1])) {
