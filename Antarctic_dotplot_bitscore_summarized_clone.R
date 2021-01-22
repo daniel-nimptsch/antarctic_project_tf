@@ -60,7 +60,27 @@ pdf(file = "Summary_dotplot_jitter_with_clones.pdf", width = 12.2, height = 7.3)
   p = ggplot(table, aes(x = Taxonomic_name, y = Normalized_bitscore))
   p = p + facet_grid(cols = vars(Taxgroup), space = "free_x", scales = "free_x")
   p = p + theme(strip.text.x = element_text(size = 6))
-  p = p + scale_y_continuous(limits = limits, breaks = breaks, minor_breaks = FALSE)
+  p = p + scale_y_continuous(limits = limits, breaks = breaks, minor_breaks = FALSE, 
+                             sec.axis = sec_axis(~ ., breaks = breaks))
+  p = p + geom_jitter(data = table[table$Clone == "no_clone",], width = 0.1, shape = 21, colour = "black", 
+                      stroke = 0.2, aes(fill = Taxgroup)) + guides(fill = FALSE)
+  p = p + geom_jitter(data = table[table$Clone == "clone",], width = 0.1, shape = 23, colour = "black", 
+                      stroke = 0.2, fill = "yellow") + guides(fill = FALSE)
+  p = p + scale_fill_manual(values = col_vector)
+  p = p + theme(axis.text.x = element_text(angle = 40, hjust = 1, size = 7))
+  p = p + theme(panel.grid.major = element_line(size = 0.2))
+  p = p + theme(axis.title.y = element_text(vjust = 2.5))
+  p = p + ggtitle(title)
+  p
+dev.off()
+
+pdf(file = "Summary_dotplot_jitter_with_clones_themeBW.pdf", width = 12.2, height = 7.3)
+  p = ggplot(table, aes(x = Taxonomic_name, y = Normalized_bitscore))
+  p = p + theme_bw()
+  p = p + facet_grid(cols = vars(Taxgroup), space = "free_x", scales = "free_x")
+  p = p + theme(strip.text.x = element_text(size = 6))
+  p = p + scale_y_continuous(limits = limits, breaks = breaks, minor_breaks = FALSE, 
+                             sec.axis = sec_axis(~ ., breaks = breaks))
   p = p + geom_jitter(data = table[table$Clone == "no_clone",], width = 0.1, shape = 21, colour = "black", 
                       stroke = 0.2, aes(fill = Taxgroup)) + guides(fill = FALSE)
   p = p + geom_jitter(data = table[table$Clone == "clone",], width = 0.1, shape = 23, colour = "black", 
@@ -78,8 +98,29 @@ pdf(file = "Summary_dotplot_and_boxplot_jitter_with_clones.pdf", width = 12.2, h
   p = ggplot(table, aes(x = Taxonomic_name, y = Normalized_bitscore))
   p = p + facet_grid(cols = vars(Taxgroup), space = "free_x", scales = "free_x")
   p = p + theme(strip.text.x = element_text(size = 6))
-  p = p + scale_y_continuous(limits = limits, breaks = breaks, minor_breaks = FALSE)
+  p = p + scale_y_continuous(limits = limits, breaks = breaks, minor_breaks = FALSE, 
+                             sec.axis = sec_axis(~ ., breaks = breaks))
   p = p + geom_boxplot(alpha = 0.4, lwd = 0.2, outlier.alpha = 0)
+  p = p + geom_jitter(data = table[table$Clone == "no_clone",], width = 0.1, shape = 21, colour = "black", 
+                      stroke = 0.2, aes(fill = Taxgroup)) + guides(fill = FALSE)
+  p = p + geom_jitter(data = table[table$Clone == "clone",], width = 0.1, shape = 23, colour = "black", 
+                      stroke = 0.2, fill = "yellow") + guides(fill = FALSE)
+  p = p + scale_fill_manual(values = col_vector)
+  p = p + theme(axis.text.x = element_text(angle = 40, hjust = 1, size = 7))
+  p = p + theme(panel.grid.major = element_line(size = 0.2))
+  p = p + theme(axis.title.y = element_text(vjust = 2.5))
+  p = p + ggtitle(title)
+  p
+dev.off()
+
+pdf(file = "Summary_dotplot_and_boxplot_jitter_with_clones_themeBW.pdf", width = 12.2, height = 7.3)
+  p = ggplot(table, aes(x = Taxonomic_name, y = Normalized_bitscore))
+  p = p + theme_bw()
+  p = p + facet_grid(cols = vars(Taxgroup), space = "free_x", scales = "free_x")
+  p = p + theme(strip.text.x = element_text(size = 6))
+  p = p + scale_y_continuous(limits = limits, breaks = breaks, minor_breaks = FALSE, 
+                             sec.axis = sec_axis(~ ., breaks = breaks))
+  p = p + geom_boxplot(alpha = 0.7, lwd = 0.2, outlier.alpha = 0)
   p = p + geom_jitter(data = table[table$Clone == "no_clone",], width = 0.1, shape = 21, colour = "black", 
                       stroke = 0.2, aes(fill = Taxgroup)) + guides(fill = FALSE)
   p = p + geom_jitter(data = table[table$Clone == "clone",], width = 0.1, shape = 23, colour = "black", 

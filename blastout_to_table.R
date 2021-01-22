@@ -141,25 +141,54 @@ only_fist_hit = function(final_table) {
   return(final_table_first_hit)
 }
 
+# Silva-fix
+silva_fix = function(final_table) {
+  silva_dir = Sys.getenv("SILVADB_DIR")
+  silva_taxmap = read.csv(file = paste(silva_dir, "/", "taxmap_slv_ssu_ref_nr_138.1.txt", sep = ""), header = TRUE, sep = "\t")
+  for (i in 1:nrow(final_table)) {
+    accession = strsplit(final_table$accession[i], split = "\\.")[[1]][1]
+    silva_taxmap_ind = which(silva_taxmap$primaryAccession == accession)
+    final_table$tax_id[i] = silva_taxmap$taxid[silva_taxmap_ind]
+    final_table$sci_names[i] = silva_taxmap$organism_name[silva_taxmap_ind]
+  }
+  return(final_table)
+}
+
+
+# Silva-fix alternative taxa
+silva_alternative_taxa = function(final_table) {
+  silva_dir = Sys.getenv("SILVADB_DIR")
+  silva_taxmap = read.csv(file = paste(silva_dir, "/", "taxmap_slv_ssu_ref_nr_138.1.txt", sep = ""), header = TRUE, sep = "\t")
+  for (i in 1:nrow(final_table)) {
+    accession = strsplit(final_table$accession[i], split = "\\.")[[1]][1]
+    silva_taxmap_ind = which(silva_taxmap$primaryAccession == accession)
+    final_table$sci_names[i] = paste(silva_taxmap$path[silva_taxmap_ind], silva_taxmap$organism_name[silva_taxmap_ind], sep = "")
+  }
+  return(final_table)
+}
+
+
 #--------------------------------------------------
 #### Working Directory ####
 # important to change:
 own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
 setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/top_OTUs_allclasses",
+            "/test",
             sep = ""))
 list.files()
-file = list.files(pattern = ".nt.blastout")[2]
+file = list.files(pattern = ".nt.blastout")[1]
 project_name = str_remove(file, ".nt.blastout")
 project_name = str_remove(project_name, "\\[blastn\\]_")
 project_name = str_remove(project_name, "\\[megablast\\]_")
+project_name = str_remove(project_name, "\\[blastn_silva\\]_")
+project_name = str_remove(project_name, "\\[megablast_silva\\]_")
 blast_name = str_remove(strsplit(file, "\\]")[[1]][1], "\\[")
 
 # Give the Blastout table colnames
 column_names_blastout = c("sci_names",  "bitscore", "evalue", "coverage", "identity", "accession", "tax_id", "subject_title")
 
 #### Load the Blastout table ####
-table = read.csv(list.files(pattern = paste(project_name, ".nt.blastout", sep = ""))[1], sep = "\t", header = FALSE, col.names = column_names_blastout)
+table = read.csv(file, sep = "\t", header = FALSE, col.names = column_names_blastout)
 
 #### Load the fasta file and genearte a matrix ####
 fasta_file = read.fasta(list.files(pattern = paste(project_name, ".fasta", sep = "")), as.string = TRUE)
@@ -173,7 +202,13 @@ table_indices_mat = get_table_indices(table, nr_otu)
 
 #### final_table ####
 final_table = generate_final_table(table_indices_mat, fasta_mat, table)
-final_table_alternative_taxa = add_taxa_sci_names(final_table)
+# If Blast query: SILVA
+if (blast_name == "blastn_silva" || blast_name == "megablast_silva") {
+  final_table = silva_fix(final_table)
+  final_table_alternative_taxa = silva_alternative_taxa(final_table)
+} else {
+  final_table_alternative_taxa = add_taxa_sci_names(final_table)
+}
 
 #### only_first_hit ####
 final_table_first_hit = only_fist_hit(final_table)

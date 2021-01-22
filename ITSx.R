@@ -15,7 +15,7 @@ library(seqinr)
 #### Working Directory ####
 own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
 setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/clones_BLAST/clones_without_matches_ITSx_BLASTN", 
+            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/clones_BLAST/clones_comparison_for_submission/assigned_algal_clones_unmatched_itsx", 
             sep = ""))
 list.files()
 path = getwd()
