@@ -1,2 +1,3 @@
 # antarctic_project_tf
-This are the scripts used to generate tables and plots for the Antarctic Project from Thomas Friedl
+
+Unrecognized diversity and cosmopolitanism of eucaryotic soil surface algae in Maritime Antarctica (Fildes Peninsula, King George Island)
