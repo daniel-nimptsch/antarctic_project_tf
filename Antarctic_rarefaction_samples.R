@@ -14,12 +14,10 @@ library(vegan)
 library(tidyr)
 
 #### Source custom functions ####
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-setwd(paste(own_cloud_dir, "/programms_daniel/Pipeline/r_pipeline_statistics", sep = ""))
 source("pipeline_statistics_custom_phyloseq_functions.R")
 
 #### Working directory ####
-setwd(paste(own_cloud_dir, "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_tables_for_grafics/rarefaction", sep = ""))
+setwd("data/rarefaction/")
 list.files()
 
 #### Color ####
@@ -53,4 +51,4 @@ pdf(file = filename, width = 11, height = 8)
   legend("right", inset = c(-0.16,0), legend = legend, col = col_vector, cex = 0.8, lwd = 2, title = "samples:")
 dev.off()
 
-
+setwd("../../")

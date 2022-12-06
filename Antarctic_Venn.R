@@ -12,15 +12,9 @@ library(VennDiagram)
 library(ggVennDiagram)
 library(ggplot2)
 
-#### Working Machine ####
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-
 #### Working directory ####
-setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_tables_for_grafics/Venn-Diagramm"
-            , sep = ""))
+setwd("data/venn/")
 path = getwd()
-list.files()
 
 #### Data ####
 otus = paste("otu", 1:963, sep = "")
@@ -61,3 +55,5 @@ pdf(file = "Venn-Diagramm_ggplot2_no_percent.pdf", width = 10.2, height = 8.3)
   p = p + scale_fill_gradient(low = "lightgreen", high = "darkgreen")
   p
 dev.off()
+
+setwd("../../")

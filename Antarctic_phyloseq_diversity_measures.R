@@ -11,10 +11,10 @@
 
 #### Packages ####
 library(RColorBrewer)
-library(ggplot2)
 library(phyloseq)
-library(readr)
-library(tidyr)
+library(vegan)
+library(tidyverse)
+library(agricolae)
 
 #### Functions ####
 # Give the otu_mat and the taxa_mat row names and convert the otu_mat to numeric
@@ -34,14 +34,10 @@ format_tax_mat = function(tax_mat, name) {
 }
   
 #### Source custom functions ####
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-setwd(paste(own_cloud_dir, "/programms_daniel/Pipeline/r_pipeline_statistics", sep = ""))
 source("pipeline_statistics_custom_phyloseq_functions.R")
 
 #### Working Directory ####
-setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_tables_for_grafics/alpha_diversity_indices", 
-            sep = ""))
+setwd("data/alpha_diversity_indices/")
 list.files()
 
 final_allOTUs = read.csv(file = list.files(pattern = "final_all1003OTUs"), header = TRUE, sep = "\t")
@@ -70,9 +66,6 @@ for (t in 1:4) {
   tax_mat = list.files(pattern = paste("tax_mat_", name, sep = ""))
   tax_mat = read.csv(tax_mat, sep = "\t", header = TRUE)
   
-    
-  # otu_mat = as.matrix(final_table[,c(1,7:12)])
-  # tax_mat = as.matrix(final_table[,c(1,3)])
   otu_mat = format_otu_mat(otu_mat)
   tax_mat = format_tax_mat(tax_mat, name)
   otu_mat = cbind(otu_mat, rep(NA, nrow(otu_mat)))
@@ -84,8 +77,6 @@ for (t in 1:4) {
     otu_mat[i,] = final_allOTUs[ind,]
   }
   
-  otu_mat = otu_mat[,c("AM31", "AM09", "AM914", "AM06", "AM614", "AS14", "AS15", "SchF")]
-
   # Create a phyloseq object from the otu_mat and the tax_mat
   OTU = otu_table(otu_mat, taxa_are_rows = TRUE)
   TAX = tax_table(as.matrix(tax_mat))
@@ -94,7 +85,7 @@ for (t in 1:4) {
   #### Diversity Measures ####
   physeq.pruned  = create_physeq_obj_prunded_diversity(physeq)
   richness = estimate_richness(physeq)
-  write.table(richness, paste(name, "_diversity_measurements_merged.csv", sep = ""), sep = "\t", row.names = TRUE, col.names = NA)
+  # write.table(richness, paste(name, "_diversity_measurements_merged.csv", sep = ""), sep = "\t", row.names = TRUE, col.names = NA)
   alpha_meas = c("Shannon","InvSimpson", "Observed")
   title = paste("Alpha Diversity Plots", "for", name)
   
@@ -156,11 +147,12 @@ pdf(file =  "all_taxgroups_diversity_plots_merged.pdf", width = 10.2, height = 6
   p = p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 12))
   p$data$Sample = factor(p$data$Sample, levels = sample_order)
   p = p + facet_wrap(~Index, scales = "free")
-  p = p + geom_boxplot(alpha = 0.7, coef = 1.5)
+  p = p + geom_boxplot(alpha = 7, coef = 1.5)
   p = p + geom_point(aes(y = Measure, colour = Taxa), size = 3) + scale_color_manual(values = col_vector)
   p
 dev.off()
 
+ultra_final_div_table$Index <- factor(ultra_final_div_table$Index, levels = c("Observed", "Shannon", "InvSimpson"))
 pdf(file =  "all_taxgroups_diversity_plots_merged_themeBW.pdf", width = 10.2, height = 6.3)
 p = ggplot(ultra_final_div_table, aes(Sample, Measure))
 p = p + theme_bw()
@@ -173,3 +165,52 @@ p = p + geom_boxplot(alpha = 0.7, coef = 1.5)
 p = p + geom_point(aes(y = Measure, colour = Taxa), size = 3) + scale_color_manual(values = col_vector)
 p
 dev.off()
+
+# #### Without SchF ####
+# # Get the indices for the rows in the ultra_final_div_table
+# ind = which(ultra_final_div_table$Sample == "SchF")
+# # ind = append(ind, which(ultra_final_div_table$Sample == "only_SchF")) 
+# 
+# # Remove the SchF from the ultra_final_div_table 
+# ultra_final_div_table = ultra_final_div_table[-ind,] 
+# 
+# # Sample order for the x-axis
+# sample_order = c("AM31", "AM09", "AM06", "AS14", "AS15", "SchF")
+# 
+# ultra_final_div_table$Index <- factor(ultra_final_div_table$Index, levels = c("Observed", "Shannon", "InvSimpson"))
+# pdf(file =  "all_taxgroups_diversity_plots_merged_without_sharedSchF.pdf", width = 9.2, height = 7.3)
+# p = ggplot(ultra_final_div_table, aes(Sample, Measure))
+# p = p + scale_x_discrete(labels = c("AM31", "AM09", "AM06", "AS14", "AS15", "SchF")) 
+# p = p + ggtitle("Alpha Diversity Plots for the different taxgroups")
+# p = p + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+# p$data$Sample = factor(p$data$Sample, levels = sample_order)
+# p = p + facet_wrap(~Index, scales = "free")
+# p = p + geom_boxplot(alpha = 0, coef = 1.5)
+# p = p + geom_point(aes(y = Measure, colour = Taxa), size = 3) + scale_color_manual(values = col_vector)
+# p
+# dev.off()
+
+# Significance
+measures = c("Observed", "Shannon", "InvSimpson")
+
+for (i in 1:length(measures)) {
+  measure = measures[i]
+  div_sig = ultra_final_div_table[which(ultra_final_div_table$Index == measure),]
+  div_sig = as_tibble(div_sig)
+  
+  qqnorm(div_sig$Measure)
+  qqline(div_sig$Measure)
+  
+  bartlett.test(Measure ~ Sample, div_sig)
+  
+  kruskal_test = kruskal.test(Measure ~ Sample, div_sig)
+  # dunn_test = FSA::dunnTest(Measure ~ Sample, div_sig, method = "bh")
+  
+  sink(file = str_glue("Significance_kruskal_{measure}.txt"))
+  print(kruskal_test)
+  print("")
+  print(dunn_test)
+  sink()
+}
+
+setwd("../../")

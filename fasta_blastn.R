@@ -11,22 +11,19 @@
 
 library(stringr)
 
+#### fasta_blastn.sh ####
+# Shell script location
+path = getwd()
+script = "fasta_blastn.sh"
+script = file.path(path, script)
+
 #### Working Directory ####
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/clones_BLAST/clones_without_matches_ITSx_BLASTN",
-            sep = ""))
-list.files()
 path = getwd()
 
 # Read the fastas
 fastas = list.files(pattern = "fasta")[1]
 
-#### fasta_blastn.sh ####
-# Shell script location
-script = paste(own_cloud_dir,
-               "/programms_daniel/Pipeline/r_pipeline_statistics/fasta_blastn.sh", 
-               sep = "")
+
 # iterate through the fastas and do the blastn query
 for (i in 1:length(fastas)) {
   fasta_name = str_remove(fastas[i], ".fasta")

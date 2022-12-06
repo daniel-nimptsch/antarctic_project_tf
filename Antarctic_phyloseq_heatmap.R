@@ -25,17 +25,11 @@ create_physeq_obj = function(otu_mat, tax_mat) {
   return(physeq)
 }
 
-#### Source custom functions ####
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-
 # Edit of the plot_heatmap function
-setwd(paste(own_cloud_dir, "/programms_daniel/GitHub/antactic_project_tf", sep = ""))
 source("Antarctic_phyloseq_heatmap_custom_functions.R")
 
 #### Working directory ####
-setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_tables_for_grafics/heatmaps", 
-            sep = ""))
+setwd("data/heatmaps/")
 
 ################################################################################
 
@@ -112,3 +106,4 @@ pdf(file = paste(name, "_dummy_left.pdf", sep = ""), width = 5.6, height = 8.3)
   p
 dev.off()
 
+setwd("../../")

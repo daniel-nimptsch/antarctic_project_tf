@@ -14,12 +14,8 @@ library(RColorBrewer)
 library(ggplot2)
 
 #### Working Directory ####
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-setwd(paste(own_cloud_dir, 
-            "/Arbeit_SAG/Pipeline_Results/Antarctis_1_NGS/Antarctis_1_NGS_2020/final_tables_for_grafics/dotplots", 
-            sep = ""))
-list.files()
-file = list.files(pattern = "clone")[1]
+setwd("data/dotplots/")
+file = list.files()
 
 # Load the table for the dotplot
 table = read.csv(file = file, sep = ";", header = TRUE)
@@ -132,3 +128,5 @@ pdf(file = "Summary_dotplot_and_boxplot_jitter_with_clones_themeBW.pdf", width =
   p = p + ggtitle(title)
   p
 dev.off()
+
+setwd("../../")

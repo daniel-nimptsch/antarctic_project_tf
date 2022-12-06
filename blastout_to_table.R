@@ -167,15 +167,8 @@ silva_alternative_taxa = function(final_table) {
   return(final_table)
 }
 
-
-#--------------------------------------------------
 #### Working Directory ####
 # important to change:
-own_cloud_dir = Sys.getenv("OWNCLOUD_DIR")
-setwd(paste(own_cloud_dir, 
-            "/test",
-            sep = ""))
-list.files()
 file = list.files(pattern = ".nt.blastout")[1]
 project_name = str_remove(file, ".nt.blastout")
 project_name = str_remove(project_name, "\\[blastn\\]_")
