@@ -12,9 +12,7 @@
 #### Packages ####
 library(RColorBrewer)
 library(phyloseq)
-library(vegan)
 library(tidyverse)
-library(agricolae)
 
 #### Functions ####
 # Give the otu_mat and the taxa_mat row names and convert the otu_mat to numeric
