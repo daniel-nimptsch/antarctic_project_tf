@@ -11,7 +11,7 @@
 
 #### Packages ####
 library(RColorBrewer)
-library(ggplot2)
+library(tidyverse)
 
 #### Working Directory ####
 setwd("data/dotplots/")

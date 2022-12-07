@@ -9,9 +9,8 @@
 
 #### Packages ####
 library(RColorBrewer)
-library(readr)
 library(vegan)
-library(tidyr)
+library(tidyverse)
 
 #### Source custom functions ####
 source("pipeline_statistics_custom_phyloseq_functions.R")

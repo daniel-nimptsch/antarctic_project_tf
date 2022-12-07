@@ -10,7 +10,7 @@
 #### Packages ####
 library(VennDiagram)
 library(ggVennDiagram)
-library(ggplot2)
+library(tidyverse)
 
 #### Working directory ####
 setwd("data/venn/")

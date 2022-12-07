@@ -11,11 +11,10 @@
 
 #### Packages ####
 library(RColorBrewer)
-library(ggplot2)
-library(stringr)
+library(tidyverse)
 
 #### Working Directory ####
-path = "data/barplot/"
+path = "data/barplots/"
 setwd(path)
 list.files()
 

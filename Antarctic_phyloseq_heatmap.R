@@ -10,11 +10,8 @@
 ################################################################################
 
 #### Packages ####
-library(ggplot2)
 library(phyloseq)
-library(readr)
-library(tidyr)
-library(scales)
+library(tidyverse)
 
 #### Functions ####
 # Create a phyloseq object with a given taxonomy table and a OTU/ASV-table (as matrix)
