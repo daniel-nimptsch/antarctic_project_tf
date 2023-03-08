@@ -13,11 +13,6 @@ fasta_blastn <- function(query, db = "genbank") {
     script <- "src/blastn/blastn_shell_scripts/fasta_blastn.sh"
     decorator <- "blastn_genbank"
 
-    # Megablast
-  } else if (db == "megablast") {
-    script <- "src/blastn/blastn_shell_scripts/fasta_megablast.sh"
-    decorator <- "megablast"
-
     # Microgreen
   } else if (db == "microgreen") {
     script <- "src/blastn/blastn_shell_scripts/fasta_blastn_microgreen.sh"
@@ -27,11 +22,6 @@ fasta_blastn <- function(query, db = "genbank") {
   } else if (db == "silva") {
     script <- "src/blastn/blastn_shell_scripts/fasta_blastn_silva.sh"
     decorator <- "blastn_silva"
-
-    # Enhanced
-  } else if (db == "enhanced") {
-    script <- "src/blastn/blastn_shell_scripts/fasta_blastn_enhanced.sh"
-    decorator <- "blastn_enhanced"
 
     # Unite
   } else if (db == "unite") {
