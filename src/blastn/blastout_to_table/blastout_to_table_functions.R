@@ -4,8 +4,7 @@
 # Written by Daniel Nimptsch
 #
 
-# Blastout manipulation functions ---------------------------------------------------------------------------------
-
+# Blastout manipulation functions
 # Get the project name out of the file name
 get_project_name <- function(file) {
   project_name <- str_remove(file, ".nt.blastout")

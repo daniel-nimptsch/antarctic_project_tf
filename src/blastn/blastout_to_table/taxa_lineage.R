@@ -13,6 +13,7 @@ genbank_taxa_lineage <- function(final_table) {
   require(taxonomizr)
   require(foreach)
   require(doParallel)
+  
   # Function to get the lineage, recursive
   # it divides the task into chunks of max. 20000 lines
   cycle_get_taxonomy <- function(accession_sql, final_table, start = 1, end = 20000) {

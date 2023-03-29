@@ -15,12 +15,6 @@ get_consensus_taxonomy <- function(final_table, dataset_path) {
 
   # Library
   require(data.tree)
-  require(progress)
-
-  # Progress
-  message("Get consensus taxonomy, progress in percent:")
-  final_percent <- 0
-  pb <- progress_bar$new(total = 100)
 
   # Create the consensus taxonomy table
   # row number equals the seq number
@@ -31,9 +25,6 @@ get_consensus_taxonomy <- function(final_table, dataset_path) {
   consensus_taxonomy_table[, 2:ncol(consensus_taxonomy_table)] <- NA
   consensus_taxonomy_table <- as_tibble(consensus_taxonomy_table)
 
-  # Show progress bar with 0 percent
-  pb$tick(0)
-  
   # Tree output file
   tree_file <- file.path(dataset_path, "consensus_taxonomy_trees.txt")
 
@@ -109,16 +100,8 @@ get_consensus_taxonomy <- function(final_table, dataset_path) {
     consensus_taxonomy_table[i, c(2, 3)] <- taxa_info[consensus_taxonomy_info_ind, c(2, 3)]
     consensus_taxonomy_table[i, c(5:11)] <- taxa_info[consensus_taxonomy_info_ind, c(5:11)]
     consensus_taxonomy_table$consensus_taxonomy[i] <- paste(lineage, collapse = ";")
-
-    percent <- round(i / length(seq_ids) * 100)
-    if (percent > final_percent) {
-      final_percent <- percent
-      pb$tick()
-    }
   }
 
   detach("package:data.tree", unload = TRUE)
-  detach("package:progress", unload = TRUE)
-
   return(as.data.frame(consensus_taxonomy_table))
 }

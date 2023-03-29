@@ -4,26 +4,21 @@
 # Written by Daniel Nimptsch
 #
 
-# Filtering functions ---------------------------------------------------------------------------------------------
-
+# Filtering functions
 # Filter the final table by keeping only the hits with the maximal
 # normalized bitscore
 filter_final_table_max_normalized_bitscore <- function(final_table, nr_seq, fasta_mat) {
-
   # Empty vector for indices of the maximal normalized bitscore hits
   vec_ind_max_nor_bit <- c()
-
   # Go through the seqs
   for (i in 1:nr_seq) {
     ind <- which(final_table$seq_ID == fasta_mat$seq_ID[i])
-
     # Determine the maximal normalized bitscore of the hits of the given seq
     max_nor_bit <- max(final_table$normalized_bitscore[ind])
     ind_max_nor_bit <- which(final_table$normalized_bitscore[ind] >= max_nor_bit)
     ind_max_nor_bit <- ind[ind_max_nor_bit]
     vec_ind_max_nor_bit <- append(vec_ind_max_nor_bit, ind_max_nor_bit)
   }
-
   # Return the final table with only the hits with the maximal normalized bitscore value
   final_table <- final_table[vec_ind_max_nor_bit, ]
   return(final_table)
