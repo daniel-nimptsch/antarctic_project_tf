@@ -10,175 +10,101 @@
 # Packages
 library(RColorBrewer)
 library(tidyverse)
+library(phyloseq)
 
-# Working Directory
-path <- "data/barplots/"
-setwd(path)
-list.files()
+source("src/phy_to_tidy_table.R")
+source("src/table_manipulation.R")
 
-# Prepare and tidy data
-# OTU_counts
-for (j in 1:length(list.files(pattern = "all"))) {
-  # Load one of the four table for the specific taxgroup
-  table <- read.csv(file = list.files(pattern = "all")[j], sep = "\t", header = TRUE)
-  taxgroup <- str_remove(strsplit(list.files(pattern = "all")[j], split = "_")[[1]][3], ".csv")
-  table[is.na(table)] <- 0
-  rownames(table) <- table[, 1]
-  table <- table[, -1]
-  table <- table[, -6]
-  colnames(table)[6] <- "SchF"
-  # Create a temp table only for the taxgroup
-  temp_table <- matrix(data = NA, nrow = 6, ncol = 3)
-  temp_table <- as.data.frame(temp_table)
-  colnames(temp_table) <- c("Location", "Taxgroup", "OTU_count")
-  temp_table[, 1] <- colnames(table)
-  temp_table[, 2] <- taxgroup
-  temp_table[, 3] <- 0
-  temp_table[, 3] <- as.integer(temp_table[, 3])
-  # Add the OTU_counts
-  for (i in 1:nrow(table)) {
-    for (y in 1:6) {
-      if (table[i, y] > 0) {
-        temp_table[y, 3] <- temp_table[y, 3] + 1
-      }
-    }
-  }
-  # Add the temp_table to the final_table
-  if (exists("final_table")) {
-    final_table <- rbind(final_table, temp_table)
-  } else {
-    final_table <- temp_table
-  }
-}
+input_table <- read_delim("data/2023_Meseta_statistics_1003_OTUs.csv")
+otu_tab <- input_table %>%
+    select(AS14:SchF) %>%
+    mutate(meseta = rowMeans(select(., AS14:SchF)))
+tax_tab <- input_table %>%
+    select(Fig4_boxplot_genus, approved_species_taxonomy, class) %>%
+    mutate(path = paste(Fig4_boxplot_genus, approved_species_taxonomy, sep = ";")) %>%
+    mutate(class = case_when(
+        class == "C" ~ "Chlorophyceae",
+        class == "X" ~ "Xanthophyceae",
+        class == "T" ~ "Trebouxiophyceae",
+        class == "U" ~ "Ulvophyceae",
+        .default = "others"
+    )) %>%
+    select(class, path)
 
-# Create a final_table_percent for the proportional otu_counts
-final_table_percent <- final_table
-for (i in 1:6) {
-  ind <- which(final_table[, 1] == final_table[i, 1])
-  sum <- sum(final_table[ind, 3])
-  final_table_percent[ind, 3] <- final_table_percent[ind, 3] / sum
-}
-final_table_percent[, 3] <- final_table_percent[, 3] * 100
+sample_data <- colnames(otu_tab)
+sample_data_category <- sample_data
+sample_data_category[sample_data_category == "AM614"] <- "AM06"
+sample_data_category[sample_data_category == "AM914"] <- "AM09"
+sample_data_tab <- bind_cols(sample = sample_data, sample_categories = sample_data_category)
+sample_data <- sample_data(sample_data_tab)
+sample_names(sample_data) <- sample_data_tab$sample
 
-# reads
-for (j in 1:length(list.files(pattern = "all"))) {
-  # Load one of the four table for the specific taxgroup
-  table <- read.csv(file = list.files(pattern = "all")[j], sep = "\t", header = TRUE)
-  taxgroup <- str_remove(strsplit(list.files(pattern = "all")[j], split = "_")[[1]][3], ".csv")
-  table[is.na(table)] <- 0
-  rownames(table) <- table[, 1]
-  table <- table[, -1]
-  table <- table[, -6]
-  colnames(table)[6] <- "SchF"
-  # Create a temp table only for the taxgroup
-  reads_table <- matrix(data = NA, nrow = 6, ncol = 3)
-  reads_table <- matrix(data = NA, nrow = 6, ncol = 3)
-  reads_table <- as.data.frame(reads_table)
-  colnames(reads_table) <- c("Location", "Taxgroup", "reads")
-  reads_table[, 1] <- colnames(table)
-  reads_table[, 2] <- taxgroup
-  reads_table[, 3] <- 0
-  reads_table[, 3] <- as.integer(reads_table[, 3])
-  # Add the OTU_counts
-  for (i in 1:nrow(table)) {
-    for (y in 1:6) {
-      if (table[i, y] > 0) {
-        reads_table[y, 3] <- reads_table[y, 3] + table[i, y]
-      }
-    }
-  }
-  # Add the reads_table to the final_reads
-  if (exists("final_reads")) {
-    final_reads <- rbind(final_reads, reads_table)
-  } else {
-    final_reads <- reads_table
-  }
-}
+# Create phyloseq
+phy <- phyloseq(
+    otu_table(otu_tab, taxa_are_rows = TRUE),
+    tax_table(as.matrix(tax_tab)),
+    sample_data
+)
 
-# Create a final_reads_percent for the proportional otu_counts
-final_reads_percent <- final_reads
-for (i in 1:6) {
-  ind <- which(final_reads[, 1] == final_reads[i, 1])
-  sum <- sum(final_reads[ind, 3])
-  final_reads_percent[ind, 3] <- final_reads_percent[ind, 3] / sum
-}
-final_reads_percent[, 3] <- final_reads_percent[, 3] * 100
+# Add taxa names to phy
+taxa_names(phy) <- input_table$OTU_ID
+taxgroup_name <- "class"
+tidy_table_list <- get_tidy_table_list(phy, taxgroup_name, "data/")
 
 # Color
 # Color Palette
 col_vector <- brewer.pal(n = 12, name = "Paired")
-display.brewer.pal(n = 12, name = "Paired")
 col_vector[3] <- col_vector[4]
 col_vector[4] <- col_vector[8]
+col_vector <- rev(col_vector[1:4])
+col_vector[5] <- "#8b8b8e"
 
 # Plot
 # Specifications
-final_table$Taxgroup <- factor(final_table$Taxgroup, levels = c("Chlorophyceae", "Trebouxiophyceae", "Ulvophyceae", "Xanthophyceae"))
-sample_order <- c("AM31", "AM09", "AM06", "AS14", "AS15", "SchF")
+factor_plot_table <- function(table) {
+    table$class <- factor(table$class,
+        levels = c("Xanthophyceae", "Ulvophyceae", "Trebouxiophyceae", "Chlorophyceae", "others")
+    )
+    return(table)
+}
+sample_order <- c("meseta", "AM31", "AM09", "AM914", "AM06", "AM614", "AS14", "AS15", "SchF")
 
-# plot otu counts
-pdf(file = "Boxplot_absolut.pdf", width = 4.2, height = 7.3)
-p <- ggplot(final_table, aes(x = Location, y = OTU_count))
-p <- p + geom_bar(aes(color = Taxgroup, fill = Taxgroup),
-  stat = "identity", position = position_stack()
-)
-p <- p + geom_text(aes(group = Taxgroup, label = OTU_count),
-  size = 3, position = position_stack(vjust = 0.5)
-)
-p <- p + scale_color_manual(values = col_vector)
-p <- p + scale_fill_manual(values = col_vector)
-p <- p + scale_x_discrete(limits = sample_order)
-p <- p + ggtitle("Boxplot of the absolut OTU_counts")
-p <- p + theme(axis.text.x = element_text(angle = 30, hjust = 1), plot.title = element_text(size = 11))
-p
-dev.off()
+p <- ggplot(
+    factor_plot_table(tidy_table_list$tidy_table_absolut_percent),
+    aes(x = sample, y = value)
+) +
+    geom_bar(
+        aes(color = class, fill = class),
+        stat = "identity", position = position_stack()
+    ) +
+    geom_text(
+        aes(group = class, label = round(value, digits = 0)),
+        size = 3, position = position_stack(vjust = 0.5)
+    ) +
+    scale_color_manual(values = col_vector) +
+    scale_fill_manual(values = col_vector) +
+    scale_x_discrete(limits = sample_order) +
+    ggtitle("Barplot of the relative OTU_counts") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1), plot.title = element_text(size = 9))
+ggsave("output/stacked_barplot/RelAbsolut.pdf", p, width = 5.2, height = 4.3)
 
-pdf(file = "Boxplot_percent.pdf", width = 4.2, height = 7.3)
-p <- ggplot(final_table_percent, aes(x = Location, y = OTU_count))
-p <- p + geom_bar(aes(color = Taxgroup, fill = Taxgroup),
-  stat = "identity", position = position_stack()
-)
-p <- p + geom_text(aes(group = Taxgroup, label = round(OTU_count, digits = 1)),
-  size = 3, position = position_stack(vjust = 0.5)
-)
-p <- p + scale_color_manual(values = col_vector)
-p <- p + scale_fill_manual(values = col_vector)
-p <- p + scale_x_discrete(limits = sample_order)
-p <- p + ggtitle("Boxplot of the procentual OTU_counts")
-p <- p + theme(axis.text.x = element_text(angle = 30, hjust = 1), plot.title = element_text(size = 11))
-p
-dev.off()
-
-# plot reads
-final_reads$Taxgroup <- factor(final_reads$Taxgroup, levels = c("Chlorophyceae", "Trebouxiophyceae", "Ulvophyceae", "Xanthophyceae"))
-pdf(file = "Boxplot_reads_absolut.pdf", width = 4.2, height = 7.3)
-p <- ggplot(final_reads, aes(x = Location, y = reads))
-p <- p + geom_bar(aes(color = Taxgroup, fill = Taxgroup),
-  stat = "identity", position = position_stack()
-)
-p <- p + geom_text(aes(group = Taxgroup, label = reads),
-  size = 2, position = position_stack(vjust = 0.5)
-)
-p <- p + scale_color_manual(values = col_vector)
-p <- p + scale_fill_manual(values = col_vector)
-p <- p + scale_x_discrete(limits = sample_order)
-p <- p + ggtitle("Boxplot of the absolut reads")
-p <- p + theme(axis.text.x = element_text(angle = 30, hjust = 1), plot.title = element_text(size = 11))
-p
-dev.off()
-
-pdf(file = "Boxplot_reads_percent.pdf", width = 4.2, height = 7.3)
-p <- ggplot(final_reads_percent, aes(x = Location, y = reads))
-p <- p + geom_bar(aes(color = Taxgroup, fill = Taxgroup),
-  stat = "identity", position = position_stack()
-)
-p <- p + geom_text(aes(group = Taxgroup, label = round(reads, digits = 1)),
-  size = 3, position = position_stack(vjust = 0.5)
-)
-p <- p + scale_color_manual(values = col_vector)
-p <- p + scale_fill_manual(values = col_vector)
-p <- p + scale_x_discrete(limits = sample_order)
-p <- p + ggtitle("Boxplot of the procentual reads")
-p <- p + theme(axis.text.x = element_text(angle = 30, hjust = 1), plot.title = element_text(size = 11))
-p
-dev.off()
+p <- ggplot(
+    factor_plot_table(tidy_table_list$tidy_table_percent),
+    aes(x = sample, y = value)
+) +
+    geom_bar(
+        aes(color = class, fill = class),
+        stat = "identity", position = position_stack()
+    ) +
+    geom_text(
+        aes(group = class, label = round(value, digits = 0)),
+        size = 3, position = position_stack(vjust = 0.5)
+    ) +
+    scale_color_manual(values = col_vector) +
+    scale_fill_manual(values = col_vector) +
+    scale_x_discrete(limits = sample_order) +
+    ggtitle("Barplot of the relative OTU reads") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1), plot.title = element_text(size = 9))
+ggsave("output/stacked_barplot/RelReads.pdf", p, width = 5.2, height = 4.3)
