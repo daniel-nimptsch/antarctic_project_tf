@@ -73,42 +73,31 @@ plot_and_save_heatmap <- function(phy) {
 }
 
 # Edit of the plot_heatmap function
-source("Antarctic_phyloseq_heatmap_custom_functions.R")
+source("src/heatmap_custom_functions.R")
 
 # Load data
-input_path <- "./data/2023_Meseta_statistics_1003_OTUs.csv"
-input_table <- read_delim(input_path, show_col_types = F)
-taxa_table <- input_table
+input_table <- read_delim("data/endversion_2023_Meseta_statistics_1003_OTUs.csv")
 
+taxa_table <- input_table
 colnames(taxa_table)[1] <- "otu_id"
 taxa_table <- arrange(taxa_table, otu_id)
 
 otu_table <- taxa_table %>%
     select(otu_id, AS14:SchF)
-
 otu_matrix <- otu_table[, -1] %>%
     as.matrix()
 rownames(otu_matrix) <- otu_table$otu_id
 
-SchF_only <- otu_table %>%
-    select(AS14:AM09) %>%
-    mutate(rowsum = rowSums(.)) %>%
-    mutate(SchF_only = (rowsum == 0)) %>%
-    select(SchF_only)
-
-taxa_table <- bind_cols(taxa_table, SchF_only)
-
 taxa_matrix <- taxa_table %>%
-    filter(!SchF_only) %>%
-    select(otu_id, NC, approved_species_taxonomy, class) %>%
-    mutate(nb = gsub(",", ".", NC), .keep = "unused") %>%
-    mutate(label_left = str_c(otu_id, nb, approved_species_taxonomy, sep = "_")) %>%
-    mutate(label_right = str_c(approved_species_taxonomy, nb, otu_id, sep = "_")) %>%
+    filter(!only_SchF) %>%
+    select(otu_id, NB, approved_species_taxonomy, class) %>%
+    mutate(label_left = str_c(otu_id, NB, approved_species_taxonomy, sep = "_")) %>%
+    mutate(label_right = str_c(approved_species_taxonomy, NB, otu_id, sep = "_")) %>%
     select(label_left, label_right, class) %>%
     as.matrix()
 
 rownames(taxa_matrix) <- taxa_table %>%
-    filter(!SchF_only) %>%
+    filter(!only_SchF) %>%
     select(otu_id) %>%
     as_vector()
 

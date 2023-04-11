@@ -20,9 +20,11 @@ get_richness <- function(input_table, tax_class) {
     tax_mat <- input_table %>%
         select(OTU_ID, class) %>%
         filter(class == tax_class)
+    phy_otu_mat <- as.matrix(otu_mat[, -c(1, 2)])
+    phy_tax_mat <- as.matrix(tax_mat[, -1])
     phy <- phyloseq(
-        otu_table(otu_mat[, -c(1, 2)], taxa_are_rows = TRUE),
-        tax_table(tax_mat[, -1])
+        otu_table(phy_otu_mat, taxa_are_rows = TRUE),
+        tax_table(phy_tax_mat)
     )
     taxa_names(phy) <- otu_mat$OTU_ID
     richness <- estimate_richness(phy, split = TRUE, measures = c("Shannon", "InvSimpson", "Observed"))
@@ -35,11 +37,8 @@ get_richness <- function(input_table, tax_class) {
     return(richness)
 }
 
-# Source custom functions
-source("pipeline_statistics_custom_phyloseq_functions.R")
-
 # Load data
-input_table <- read_delim("./data/2023_Meseta_statistics_1003_OTUs.csv")
+input_table <- read_delim("data/endversion_2023_Meseta_statistics_1003_OTUs.csv")
 taxgroups <- c("Chlorophyceae" = "C", "Trebouxiophyceae" = "T", "Ulvophyceae" = "U", "Xanthophyceae" = "X")
 
 div_table <- tibble()
@@ -50,7 +49,6 @@ for (class in taxgroups) {
 # Color
 # Color Palette
 col_vector <- brewer.pal(n = 12, name = "Paired")
-# display.brewer.pal(n = 12, name = "Paired")
 col_vector[3] <- col_vector[4]
 col_vector[4] <- col_vector[8]
 
@@ -81,7 +79,7 @@ ggsave(
 
 # Significance
 measures <- c("Observed", "Shannon", "InvSimpson")
-for (i in 1:length(measures)) {
+for (i in seq_along(measures)) {
     measure <- measures[i]
     div_sig <- div_table[which(div_table$index == measure), ]
     div_sig <- as_tibble(div_sig)

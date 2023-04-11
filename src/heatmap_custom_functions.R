@@ -1,13 +1,9 @@
 #
 # Antarctic_phyloseq_heatmap_custom_functions.R
 #
-# Custom edit from the plot_heatmap function from the phyloseq package
-#
-# Written by Daniel Nimptsch
-#
+# This function is based on the 'plot_heatmap' function from the 'phyloseq' package,
+# with modifications made by Daniel Nimptsch
 
-# Functions
-# Edit of the phyloseq plot_heatmap function
 plot_heatmap_ypos_right <- function(physeq, method = "NMDS", distance = "bray", sample.label = NULL,
                                     taxa.label = NULL, low = "#000033", high = "#66CCFF", na.value = "black",
                                     trans = scales::log_trans(4), max.label = 250, title = NULL, sample.order = NULL,

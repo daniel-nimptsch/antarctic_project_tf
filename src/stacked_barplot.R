@@ -15,10 +15,10 @@ library(phyloseq)
 source("src/phy_to_tidy_table.R")
 source("src/table_manipulation.R")
 
-input_table <- read_delim("data/2023_Meseta_statistics_1003_OTUs.csv")
+input_table <- read_delim("data/endversion_2023_Meseta_statistics_1003_OTUs.csv")
 otu_tab <- input_table %>%
     select(AS14:SchF) %>%
-    mutate(meseta = rowMeans(select(., AS14:SchF)))
+    mutate(meseta = rowMeans(select(., AS14:AM09)))
 tax_tab <- input_table %>%
     select(Fig4_boxplot_genus, approved_species_taxonomy, class) %>%
     mutate(path = paste(Fig4_boxplot_genus, approved_species_taxonomy, sep = ";")) %>%

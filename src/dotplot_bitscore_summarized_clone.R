@@ -25,21 +25,21 @@ plot_dotplot_boxplot <- function(dotplot_table, facet = TRUE, bw = FALSE) {
             data = dotplot_table[dotplot_table$Clone == FALSE, ], width = 0.1, shape = 21, colour = "black",
             stroke = 0.2, aes(fill = Taxgroup)
         ) +
-        guides(fill = FALSE) +
+        guides(fill = "none") +
         geom_jitter(
             data = dotplot_table[dotplot_table$Clone == TRUE, ], width = 0.1, shape = 23, colour = "black",
             stroke = 0.2, fill = "yellow"
         ) +
-        guides(fill = FALSE) +
+        guides(fill = "none") +
         scale_fill_manual(values = col_vector) +
         theme(
             strip.text.x = element_text(size = 6),
             axis.text.x = element_text(angle = 40, hjust = 1, size = 7),
-            panel.grid.major = element_line(size = 0.2),
+            panel.grid.major = element_line(linewidth = 0.2),
             axis.title.y = element_text(vjust = 2.5),
         ) +
         ggtitle(title) +
-        ylab("normalized bitscore (NC)")
+        ylab("normalized bitscore (NB)")
     return(p)
 }
 
@@ -53,19 +53,18 @@ get_colors <- function() {
 }
 
 # Load input table
-input_table <- read_delim("./data/2023_Meseta_statistics_1003_OTUs.csv")
+input_table <- read_delim("data/endversion_2023_Meseta_statistics_1003_OTUs.csv")
 
 dotplot_table <- input_table %>%
-    select(Fig4_boxplot_genus, NC, OTU_ID, OTU_with_clone, class) %>%
-    mutate(NC = as.numeric(gsub(",", "\\.", NC))) %>%
-    mutate(OTU_with_clone = !is.na(OTU_with_clone)) %>%
+    select(Fig4_boxplot_genus, NB, OTU_ID, OTU_with_clone, only_SchF, class) %>%
     mutate(class = replace(class, class == "C", "Chlorophyceae")) %>%
     mutate(class = replace(class, class == "T", "Trebouxiophyceae")) %>%
     mutate(class = replace(class, class == "U", "Ulvophyceae")) %>%
     mutate(class = replace(class, class == "X", "Xanthophyceae")) %>%
-    filter(!(input_table$class %in% c("Z_unclear", "Z_bryophyte", "Z_fungus"))) %>%
+    filter(!(class %in% c("Z_unclear", "Z_bryophyte", "Z_fungus", "Z"))) %>%
+    filter(!only_SchF) %>%
     arrange(Fig4_boxplot_genus)
-colnames(dotplot_table) <- c("Taxonomic_name", "Normalized_bitscore", "OTU_ID", "Clone", "Taxgroup")
+colnames(dotplot_table) <- c("Taxonomic_name", "Normalized_bitscore", "OTU_ID", "Clone", "only_SchF", "Taxgroup")
 
 # Save the plot to pdf
 # breaks for the y-axis
@@ -80,8 +79,6 @@ col_vector <- get_colors()
 title <- "Dotplot of the normalized bitscores from the different genera"
 p <- plot_dotplot_boxplot(dotplot_table, bw = TRUE)
 ggsave("./output/dotplot/dotplot_boxplot.pdf", p, width = 12.2, height = 7.3)
-# p <- plot_dotplot_boxplot(dotplot_table)
-# ggsave("./output/dotplot/Summary_dotplot_and_boxplot_jitter_with_clones.pdf", p, width = 12.2, height = 7.3)
 
 for (taxgroup in unique(dotplot_table$Taxgroup)) {
     title <- str_glue("Dotplot of the normalized bitscores from {taxgroup}")

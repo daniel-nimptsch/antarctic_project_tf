@@ -79,9 +79,9 @@ get_tidy_table_list <- function(phy, taxgroup_name, dataset_path) {
         tidy_table_list <- read_rds(file.path(dataset_path, paste("tidy_table_list_", taxgroup_name, ".rds", sep = "")))
     } else {
         tidy_table <- get_tidy_table_phy_object(phy, taxgroup_name = taxgroup_name)
-        tidy_table_percent <- get_tidy_table_phy_object(phy, taxgroup_name, percent = T)
-        tidy_table_absolut <- get_tidy_table_phy_object(phy, taxgroup_name, count = T)
-        tidy_table_absolut_percent <- get_tidy_table_phy_object(phy, taxgroup_name, count = T, percent = T)
+        tidy_table_percent <- get_tidy_table_phy_object(phy, taxgroup_name, percent = TRUE)
+        tidy_table_absolut <- get_tidy_table_phy_object(phy, taxgroup_name, count = TRUE)
+        tidy_table_absolut_percent <- get_tidy_table_phy_object(phy, taxgroup_name, count = TRUE, percent = TRUE)
 
         tidy_table <- add_sample_names(tidy_table, sample_data(phy))
         tidy_table_percent <- add_sample_names(tidy_table_percent, sample_data(phy))
@@ -89,9 +89,14 @@ get_tidy_table_list <- function(phy, taxgroup_name, dataset_path) {
 
         phy_cat <- merge_samples(phy, "sample_categories")
         tidy_table_sample_category <- get_tidy_table_phy_object(phy_cat, taxgroup_name)
-        tidy_table_percent_sample_category <- get_tidy_table_phy_object(phy_cat, taxgroup_name, percent = T)
-        tidy_table_absolut_sample_category <- get_tidy_table_phy_object(phy_cat, taxgroup_name, count = T)
-        tidy_table_absolut_sample_category_percent <- get_tidy_table_phy_object(phy_cat, taxgroup_name, count = T, percent = T)
+        tidy_table_percent_sample_category <- get_tidy_table_phy_object(phy_cat, taxgroup_name, percent = TRUE)
+        tidy_table_absolut_sample_category <- get_tidy_table_phy_object(phy_cat, taxgroup_name, count = TRUE)
+        tidy_table_absolut_sample_category_percent <- get_tidy_table_phy_object(
+            phy_cat,
+            taxgroup_name,
+            count = TRUE,
+            percent = TRUE
+        )
 
         tidy_table_list <- list(
             tidy_table,

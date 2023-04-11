@@ -15,7 +15,7 @@ library(tidyverse)
 col_vector <- brewer.pal(n = 8, name = "Paired")
 
 # Rarefaction curve
-input_table <- read_delim("./data/2023_Meseta_statistics_1003_OTUs.csv") %>%
+input_table <- read_delim("data/endversion_2023_Meseta_statistics_1003_OTUs.csv") %>%
     select(AS14:SchF)
 legend <- colnames(input_table)
 input_table <- input_table %>%
