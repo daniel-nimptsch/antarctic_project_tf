@@ -54,16 +54,17 @@ tidy_table_list <- get_tidy_table_list(phy, taxgroup_name, "data/")
 # Color
 # Color Palette
 col_vector <- brewer.pal(n = 12, name = "Paired")
-col_vector[3] <- col_vector[4]
+col_vector[3] <- col_vector[2]
+col_vector[2] <- col_vector[4]
 col_vector[4] <- col_vector[8]
-col_vector <- rev(col_vector[1:4])
 col_vector[5] <- "#8b8b8e"
+scales::show_col(col_vector)
 
 # Plot
 # Specifications
 factor_plot_table <- function(table) {
     table$class <- factor(table$class,
-        levels = c("Xanthophyceae", "Ulvophyceae", "Trebouxiophyceae", "Chlorophyceae", "others")
+        levels = c("Chlorophyceae", "Ulvophyceae", "Trebouxiophyceae", "Xanthophyceae", "others")
     )
     return(table)
 }

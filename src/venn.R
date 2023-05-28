@@ -6,8 +6,8 @@
 
 # Packages
 library(VennDiagram)
-library(ggVennDiagram)
 library(tidyverse)
+library(eulerr)
 
 # Data
 input_table <- read_delim("data/endversion_2023_Meseta_statistics_1003_OTUs.csv")
@@ -21,39 +21,41 @@ meseta <- otus[which(venn_table$meseta > 0)]
 schf <- otus[which(venn_table$SchF > 0)]
 list <- list("Meseta" = meseta, "SchF" = schf)
 
+width <- 6
+height <- 6
+
+p <- plot(euler(list))
+ggsave("output/venn/Venn-Diagramm_euler.pdf", p, width = width, height = height)
+
 # Plot
-venn.diagram(list,
+p <- venn.diagram(list,
     fill = c("lightblue", "green"), alpha = c(0.5, 0.5), lwd = 0,
-    filename = "output/venn/Venn-Diagramm.svg",
+    filename = NULL,
     print.mode = c("raw", "percent"), fontfamily = "sans", sub.fontfamily = "sans",
     main.fontfamily = "sans", cat.fontfamily = "sans"
 )
 
-venn.diagram(list,
+ggsave("output/venn/Venn-Diagramm.pdf", p, width = width, height = height)
+p <- venn.diagram(list,
     fill = c("lightblue", "green"), alpha = c(0.5, 0.5), lwd = 0,
-    filename = "output/venn/Venn-Diagramm_no_percent.svg",
+    filename = NULL,
     print.mode = "raw", fontfamily = "sans", sub.fontfamily = "sans",
     main.fontfamily = "sans", cat.fontfamily = "sans"
 )
+ggsave("output/venn/Venn-Diagramm_no_percent.pdf", p, width = width, height = height)
 
-venn.diagram(list,
+p <- venn.diagram(list,
     fill = c("darkgreen", "green"), alpha = c(0.5, 0.5), lwd = 0,
-    filename = "output/venn/Venn-Diagramm_alternative_color.svg",
+    filename = NULL,
     print.mode = c("raw", "percent"), fontfamily = "sans", sub.fontfamily = "sans",
     main.fontfamily = "sans", cat.fontfamily = "sans"
 )
+ggsave("output/venn/Venn-Diagramm_alternative_color.pdf", p, width = width, height = height)
 
-venn.diagram(list,
+p <- venn.diagram(list,
     fill = c("darkgreen", "green"), alpha = c(0.5, 0.5), lwd = 0,
-    filename = "output/venn/Venn-Diagramm_no_percent_alternative_color.svg",
+    filename = NULL,
     print.mode = "raw", fontfamily = "sans", sub.fontfamily = "sans",
     main.fontfamily = "sans", cat.fontfamily = "sans"
 )
-
-p <- ggVennDiagram(list, n.sides = 6000, color = "darkgreen")
-p <- p + scale_fill_gradient(low = "lightgreen", high = "darkgreen")
-ggsave("output/venn/Venn-Diagramm_ggplot2.pdf", p, width = 10.2, height = 8.3)
-
-p <- ggVennDiagram(list, n.sides = 6000, color = "darkgreen", label = "count")
-p <- p + scale_fill_gradient(low = "lightgreen", high = "darkgreen")
-ggsave("output/venn/Venn-Diagramm_ggplot2_no_percent.pdf", p, width = 10.2, height = 8.3)
+ggsave("output/venn/Venn-Diagramm_alternative_color_no_percent.pdf", p, width = width, height = height)
